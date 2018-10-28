@@ -89,6 +89,22 @@ public class DynamoDBReplicator {
 		maxScanRateOption.setRequired(false);
 		options.addOption(maxScanRateOption);
 
+		Option mfa = new Option("mfa", "mfa-code", true, "Mfa code");
+		mfa.setRequired(false);
+		options.addOption(mfa);
+
+		Option mfaARN = new Option("mfa-arn", "mfa-arn", true, "Mfa ARN");
+		mfaARN.setRequired(false);
+		options.addOption(mfaARN);
+
+		Option assumeRoleArn = new Option("assume-role-arn", "assume-role-arn", true, "Assume Role ARN");
+		assumeRoleArn.setRequired(false);
+		options.addOption(assumeRoleArn);
+
+		Option region = new Option("region", "region", true, "Region");
+		region.setRequired(false);
+		options.addOption(region);
+
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.setWidth(120);
@@ -122,7 +138,16 @@ public class DynamoDBReplicator {
 				throw new ParseException("invalid conversion mode: " + conversionModeString);
 			}
 
-			AWSCredentialsProvider credentialsProvider = new DefaultAWSCredentialsProviderChain();
+			AWSCredentialsProvider credentialsProvider;
+			String mfaValue = cmd.getOptionValue("mfa", "");
+			String mfaARNValue = cmd.getOptionValue("mfa-arn", "");
+			String assumeRoleARNValue = cmd.getOptionValue("assume-role-arn", "");
+			String regionValue = cmd.getOptionValue("region", "");
+			if (mfaValue.isEmpty()) {
+				credentialsProvider = new DefaultAWSCredentialsProviderChain();
+			} else {
+				credentialsProvider = MyAWSCredentialProvider.getMFAAssumeRoleCredentialProvider(mfaARNValue, assumeRoleARNValue, regionValue, mfaValue);
+			}
 
 			AmazonDynamoDB dynamoDBClient = AmazonDynamoDBClientBuilder.standard().
 					withCredentials(credentialsProvider).
