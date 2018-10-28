@@ -93,11 +93,11 @@ public class DynamoDBReplicator {
 		mfa.setRequired(false);
 		options.addOption(mfa);
 
-		Option mfaARN = new Option("mfa-arn", "mfa-arn", true, "Mfa ARN");
+		Option mfaARN = new Option("mfa_arn", "mfa-arn", true, "Mfa ARN");
 		mfaARN.setRequired(false);
 		options.addOption(mfaARN);
 
-		Option assumeRoleArn = new Option("assume-role-arn", "assume-role-arn", true, "Assume Role ARN");
+		Option assumeRoleArn = new Option("role_arn", "role-arn", true, "Assume Role ARN");
 		assumeRoleArn.setRequired(false);
 		options.addOption(assumeRoleArn);
 
@@ -140,8 +140,8 @@ public class DynamoDBReplicator {
 
 			AWSCredentialsProvider credentialsProvider;
 			String mfaValue = cmd.getOptionValue("mfa", "");
-			String mfaARNValue = cmd.getOptionValue("mfa-arn", "");
-			String assumeRoleARNValue = cmd.getOptionValue("assume-role-arn", "");
+			String mfaARNValue = cmd.getOptionValue("mfa_arn", "");
+			String assumeRoleARNValue = cmd.getOptionValue("role_arn", "");
 			String regionValue = cmd.getOptionValue("region", "");
 			if (mfaValue.isEmpty()) {
 				credentialsProvider = new DefaultAWSCredentialsProviderChain();

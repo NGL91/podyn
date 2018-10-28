@@ -5,7 +5,7 @@ import java.util.List;
 public class TableIndex {
 
 	public final String tableName;
-	public final String name;
+	public String name;
 	
 	private final List<String> columnNames;
 
@@ -19,6 +19,7 @@ public class TableIndex {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("CREATE INDEX ");
+		if (!name.startsWith(tableName)) name = tableName + "_" + name;
 		sb.append(TableSchema.quoteIdentifier(name));
 		sb.append(" ON ");
 		sb.append(TableSchema.quoteIdentifier(tableName));
