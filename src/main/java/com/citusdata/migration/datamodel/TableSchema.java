@@ -3,6 +3,8 @@
  */
 package com.citusdata.migration.datamodel;
 
+import org.springframework.util.LinkedCaseInsensitiveMap;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -30,7 +32,7 @@ public class TableSchema {
 	public TableSchema(String tableName, String schemaName) {
 		this.tableName = tableName;
 		this.schemaName = schemaName;
-		this.columns = new LinkedHashMap<>();
+		this.columns = new LinkedCaseInsensitiveMap();
 		this.primaryKey = null;
 		this.tableIndexes = new ArrayList<>();
 	}
