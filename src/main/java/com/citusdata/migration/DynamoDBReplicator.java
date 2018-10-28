@@ -214,30 +214,34 @@ public class DynamoDBReplicator {
 			}
 
 		} catch (ParseException e) {
-			LOG.error(e.getMessage());
+			LOG.error(e.getMessage(), e);
 			formatter.printHelp("podyn", options);
 			System.exit(3);
 		} catch (TableExistsException|NonExistingTableException e) {
-			LOG.error(e.getMessage());
+			LOG.error(e.getMessage(), e);
 			System.exit(1);
 		} catch (ExecutionException e) {
 			Throwable cause = e.getCause();
 
 			if (cause.getCause() != null) {
-				LOG.error(cause.getCause().getMessage());
+				LOG.error(cause.getCause().getMessage(), e);
 			} else {
-				LOG.error(cause.getMessage());
+				LOG.error(cause.getMessage(), e);
 			}
 			System.exit(1);
 		} catch (EmissionException e) {
 			if (e.getCause() != null) {
-				LOG.error(e.getCause().getMessage());
+				LOG.error(e.getCause().getMessage(), e);
 			} else {
-				LOG.error(e.getMessage());
+				LOG.error(e.getMessage(), e);
 			}
 			System.exit(1);
 		} catch (RuntimeException e) {
-			e.printStackTrace();
+			if (e.getCause() != null) {
+				LOG.error(e.getCause().getMessage(), e);
+			} else {
+				LOG.error(e.getMessage(), e);
+			}
 			System.exit(2);
 		} catch (Exception e) {
 			LOG.error(e);
