@@ -54,7 +54,7 @@ public class JDBCTableEmitter implements TableEmitter {
 			+ "  c.column_name = pk.column_name "
 			+ "WHERE"
 			+ "  c.table_name = ? AND"
-			+ "  c.table_schema = 'public' "
+			+ "  c.table_schema = ? "
 			+ "ORDER BY"
 			+ "  ordinal_position";
 
@@ -73,21 +73,24 @@ public class JDBCTableEmitter implements TableEmitter {
 	final PreparedStatement describeTableStatement;
 	final PreparedStatement hasCitusStatement;
 	final PreparedStatement distributionColumnStatement;
+	private String schemaName;
 
-	public JDBCTableEmitter(String url) throws SQLException {
-		this(DriverManager.getConnection(url));
+	public JDBCTableEmitter(String url, String schemaName) throws SQLException {
+		this(DriverManager.getConnection(url), schemaName);
 	}
 	
-	public JDBCTableEmitter(Connection connection) throws SQLException {
+	public JDBCTableEmitter(Connection connection, String schemaName) throws SQLException {
 		this.currentConnection = connection;
 		this.describeTableStatement = currentConnection.prepareStatement(DESCRIBE_TABLE_SQL);
 		this.hasCitusStatement = currentConnection.prepareStatement(HAS_CITUS_SQL);
 		this.distributionColumnStatement = currentConnection.prepareStatement(DISTRIBUTION_COLUMN_SQL);
+		this.schemaName = schemaName;
 	}
 
 	public synchronized TableSchema fetchSchema(String tableName) {
 		try {
 			describeTableStatement.setString(1, tableName);
+			describeTableStatement.setString(2, this.schemaName);
 
 			ResultSet describeTableResults = describeTableStatement.executeQuery();
 

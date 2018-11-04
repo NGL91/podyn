@@ -105,6 +105,10 @@ public class DynamoDBReplicator {
 		region.setRequired(false);
 		options.addOption(region);
 
+		Option schema = new Option("sn", "schema-name", true, "Schema name");
+		schema.setRequired(false);
+		options.addOption(schema);
+
 		CommandLineParser parser = new DefaultParser();
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.setWidth(120);
@@ -143,6 +147,7 @@ public class DynamoDBReplicator {
 			String mfaARNValue = cmd.getOptionValue("mfa_arn", "");
 			String assumeRoleARNValue = cmd.getOptionValue("role_arn", "");
 			String regionValue = cmd.getOptionValue("region", "");
+			String schemaNameValue = cmd.getOptionValue("sn", "public");
 			if (mfaValue.isEmpty()) {
 				credentialsProvider = new DefaultAWSCredentialsProviderChain();
 			} else {
@@ -163,7 +168,7 @@ public class DynamoDBReplicator {
 				List<TableEmitter> emitters = new ArrayList<>();
 
 				for(int i = 0; i < dbConnectionCount; i++) {
-					emitters.add(new JDBCTableEmitter(postgresURL));
+					emitters.add(new JDBCTableEmitter(postgresURL, schemaNameValue));
 				}
 
 				emitter = new HashedMultiEmitter(emitters);
