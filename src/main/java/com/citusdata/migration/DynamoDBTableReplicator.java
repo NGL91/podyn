@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -170,6 +171,11 @@ public class DynamoDBTableReplicator {
 			tableSchema.addColumn(columnName, type);
 		}
 
+		if (!tableSchema.columnExists(TableSchema.LAST_UPDATED_COLUMN_NAME)) {
+			tableSchema.addColumn(TableSchema.LAST_UPDATED_COLUMN_NAME, TableColumnType.numeric);
+			tableSchema.addColumn(TableSchema.EVENT_COLUMN_NAME, TableColumnType.text);
+		}
+
 		List<String> primaryKey = new ArrayList<>();
 		List<KeySchemaElement> keySchema = tableDescription.getKeySchema();
 
@@ -243,8 +249,7 @@ public class DynamoDBTableReplicator {
 			TableRowBatch tableRowBatch = new TableRowBatch();
 
 			for(Map<String,AttributeValue> dynamoItem : scanResult.getItems()) {
-				TableRow tableRow = rowFromDynamoRecord(dynamoItem);
-
+				TableRow tableRow = rowFromDynamoRecord(dynamoItem, TableSchema.EVENT_INSERT);
 				tableRowBatch.addRow(tableRow);
 			}
 
@@ -422,27 +427,38 @@ public class DynamoDBTableReplicator {
 		for (Record dynamoRecord : records) {
 			StreamRecord streamRecord = dynamoRecord.getDynamodb();
 
-			switch (dynamoRecord.getEventName()) {
-			case "INSERT":
-			case "MODIFY":
-				Map<String,AttributeValue> dynamoItem = streamRecord.getNewImage();
+//			switch (dynamoRecord.getEventName()) {
+//			case "INSERT":
+//			case "MODIFY":
+//				Map<String,AttributeValue> dynamoItem = streamRecord.getNewImage();
+//
+//				if(dynamoItem == null) {
+//					LOG.error(String.format("the stream for table %s does not have new images", dynamoTableName));
+//					System.exit(1);
+//				}
+//
+//				TableRow tableRow = rowFromDynamoRecord(dynamoItem);
+//				emitter.upsert(tableRow);
+//				LOG.debug(tableRow.toUpsert());
+//				break;
+//			case "REMOVE":
+//				Map<String,AttributeValue> dynamoKeys = streamRecord.getKeys();
+//				PrimaryKeyValue keyValue = primaryKeyValueFromDynamoKeys(dynamoKeys);
+//				emitter.delete(keyValue);
+//				LOG.debug(keyValue.toDelete());
+//				break;
+//			}
 
-				if(dynamoItem == null) {
-					LOG.error(String.format("the stream for table %s does not have new images", dynamoTableName));
-					System.exit(1);
-				}
+			Map<String,AttributeValue> dynamoItem = streamRecord.getNewImage();
 
-				TableRow tableRow = rowFromDynamoRecord(dynamoItem);
-				emitter.upsert(tableRow);
-				LOG.debug(tableRow.toUpsert());
-				break;
-			case "REMOVE":
-				Map<String,AttributeValue> dynamoKeys = streamRecord.getKeys();
-				PrimaryKeyValue keyValue = primaryKeyValueFromDynamoKeys(dynamoKeys);
-				emitter.delete(keyValue);
-				LOG.debug(keyValue.toDelete());
-				break;
+			if(dynamoItem == null) {
+				LOG.error(String.format("the stream for table %s does not have new images", dynamoTableName));
+				System.exit(1);
 			}
+
+			TableRow tableRow = rowFromDynamoRecord(dynamoItem, dynamoRecord.getEventName());
+			emitter.upsert(tableRow);
+			LOG.debug(tableRow.toUpsert());
 
 			LOG.debug(streamRecord);
 		}
@@ -512,13 +528,18 @@ public class DynamoDBTableReplicator {
 		return sb.toString();
 	}
 
-	public TableRow rowFromDynamoRecord(Map<String,AttributeValue> dynamoItem) {
+	public TableRow rowFromDynamoRecord(Map<String,AttributeValue> dynamoItem, String eventName) {
+		TableRow tableRow = null;
 		if (conversionMode == ConversionMode.jsonb) {
-			return rowWithJsonbFromDynamoRecord(dynamoItem);
+			tableRow = rowWithJsonbFromDynamoRecord(dynamoItem);
 		} else {
-			return rowWithColumnsFromDynamoRecord(dynamoItem);
-
+			tableRow = rowWithColumnsFromDynamoRecord(dynamoItem);
 		}
+
+		tableRow.setValue(TableSchema.LAST_UPDATED_COLUMN_NAME, Instant.now().toEpochMilli());
+		tableRow.setValue(TableSchema.EVENT_COLUMN_NAME, eventName);
+
+		return tableRow;
 	}
 
 	public TableRow rowWithJsonbFromDynamoRecord(Map<String,AttributeValue> dynamoItem) {

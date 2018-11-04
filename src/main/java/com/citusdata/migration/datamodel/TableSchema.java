@@ -16,6 +16,11 @@ import java.util.Map;
  *
  */
 public class TableSchema {
+	public static final String LAST_UPDATED_COLUMN_NAME = "__lastUpdatedTimestamp";
+	public static final String EVENT_COLUMN_NAME = "__eventName";
+	public static final String EVENT_INSERT = "INSERT";
+	public static final String EVENT_MODIFY = "MODIFY";
+	public static final String EVENT_REMOVE = "REMOVE";
 
 	public String schemaName;
 	public String tableName;
