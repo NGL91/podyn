@@ -53,7 +53,7 @@ public class TableColumnValue {
 	}
 
 	public String toQuotedString() {
-		if(type == TableColumnType.bytea) {
+		if(type == TableColumnType.bytea || type == TableColumnType.timestamp) {
 			return "'" + toString() + "'";
 		}
 		

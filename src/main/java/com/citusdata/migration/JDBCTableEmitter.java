@@ -100,6 +100,8 @@ public class JDBCTableEmitter implements TableEmitter {
 
 				do {
 					String columnName = describeTableResults.getString("column_name");
+					if (TableSchema.KAFKA_SERIAL_COLUMN_NAME.equals(columnName)) continue;
+
 					String typeName = describeTableResults.getString("data_type");
 					boolean isNullable = describeTableResults.getBoolean("is_nullable");
 					boolean isPrimaryKey = describeTableResults.getBoolean("is_primary_key");

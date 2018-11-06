@@ -12,8 +12,10 @@ public enum TableColumnType {
 	numeric("numeric"),
 	bytea("bytea"),
 	jsonb("jsonb"),
-	bool("boolean");
-	
+	bool("boolean"),
+	timestamp("timestamp without time zone")
+	;
+
 	final String name;
 	
 	TableColumnType(String name) {

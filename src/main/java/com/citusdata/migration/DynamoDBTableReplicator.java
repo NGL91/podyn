@@ -8,6 +8,9 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -171,10 +174,9 @@ public class DynamoDBTableReplicator {
 			tableSchema.addColumn(columnName, type);
 		}
 
-		if (!tableSchema.columnExists(TableSchema.LAST_UPDATED_COLUMN_NAME)) {
-			tableSchema.addColumn(TableSchema.LAST_UPDATED_COLUMN_NAME, TableColumnType.numeric);
-			tableSchema.addColumn(TableSchema.EVENT_COLUMN_NAME, TableColumnType.text);
-		}
+		tableSchema.addColumn(TableSchema.KAFKA_LAST_UPDATED_COLUMN_NAME, TableColumnType.timestamp);
+		tableSchema.addColumn(TableSchema.KAFKA_EVENT_COLUMN_NAME, TableColumnType.text);
+		tableSchema.addColumn(TableSchema.KAFKA_SERIAL_COLUMN_NAME, TableColumnType.numeric);
 
 		List<String> primaryKey = new ArrayList<>();
 		List<KeySchemaElement> keySchema = tableDescription.getKeySchema();
@@ -536,8 +538,8 @@ public class DynamoDBTableReplicator {
 			tableRow = rowWithColumnsFromDynamoRecord(dynamoItem);
 		}
 
-		tableRow.setValue(TableSchema.LAST_UPDATED_COLUMN_NAME, Instant.now().toEpochMilli());
-		tableRow.setValue(TableSchema.EVENT_COLUMN_NAME, eventName);
+		tableRow.setValue(TableSchema.KAFKA_LAST_UPDATED_COLUMN_NAME, Instant.now());
+		tableRow.setValue(TableSchema.KAFKA_EVENT_COLUMN_NAME, eventName);
 
 		return tableRow;
 	}

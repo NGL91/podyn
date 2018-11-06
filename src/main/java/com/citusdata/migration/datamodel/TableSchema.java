@@ -16,8 +16,9 @@ import java.util.Map;
  *
  */
 public class TableSchema {
-	public static final String LAST_UPDATED_COLUMN_NAME = "__lastUpdatedTimestamp";
-	public static final String EVENT_COLUMN_NAME = "__eventName";
+	public static final String KAFKA_LAST_UPDATED_COLUMN_NAME = "__kafka_lastUpdated";
+	public static final String KAFKA_EVENT_COLUMN_NAME = "__kafka_eventName";
+	public static final String KAFKA_SERIAL_COLUMN_NAME = "__kafka_serialID";
 	public static final String EVENT_INSERT = "INSERT";
 	public static final String EVENT_MODIFY = "MODIFY";
 	public static final String EVENT_REMOVE = "REMOVE";
