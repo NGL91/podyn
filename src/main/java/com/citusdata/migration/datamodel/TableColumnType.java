@@ -13,7 +13,8 @@ public enum TableColumnType {
 	bytea("bytea"),
 	jsonb("jsonb"),
 	bool("boolean"),
-	timestamp("timestamp without time zone")
+	timestamp("timestamp without time zone"),
+	serial("serial")
 	;
 
 	final String name;

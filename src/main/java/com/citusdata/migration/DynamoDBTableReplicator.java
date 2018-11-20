@@ -176,7 +176,7 @@ public class DynamoDBTableReplicator {
 
 		tableSchema.addColumn(TableSchema.KAFKA_LAST_UPDATED_COLUMN_NAME, TableColumnType.timestamp);
 		tableSchema.addColumn(TableSchema.KAFKA_EVENT_COLUMN_NAME, TableColumnType.text);
-		tableSchema.addColumn(TableSchema.KAFKA_SERIAL_COLUMN_NAME, TableColumnType.numeric);
+		tableSchema.addColumn(TableSchema.KAFKA_SERIAL_COLUMN_NAME, TableColumnType.serial);
 
 		List<String> primaryKey = new ArrayList<>();
 		List<KeySchemaElement> keySchema = tableDescription.getKeySchema();
