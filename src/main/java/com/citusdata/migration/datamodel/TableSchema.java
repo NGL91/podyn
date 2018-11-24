@@ -134,7 +134,23 @@ public class TableSchema {
 
 		sb.append("COPY ");
 		sb.append(getQualifiedTableName());
-		sb.append(" FROM STDIN");
+		sb.append(" (");
+
+		boolean skipComma = true;
+
+		for (TableColumn column : columns.values()) {
+			if (column.name.equals(TableSchema.KAFKA_SERIAL_COLUMN_NAME)) continue;
+
+			if (!skipComma) {
+				sb.append(",");
+			}
+
+			sb.append(column.getQuotedIdentifier().toString());
+
+			skipComma = false;
+		}
+
+		sb.append(") FROM STDIN");
 
 		return sb.toString();
 	}

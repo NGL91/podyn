@@ -575,7 +575,7 @@ public class DynamoDBTableReplicator {
 			String columnName = dynamoKeyToColumnName(keyName);
 			TableColumn column = tableSchema.getColumn(columnName);
 
-			if (column == null) {
+			if (column == null || columnName == TableSchema.KAFKA_SERIAL_COLUMN_NAME) {
 				/* skip non-existent columns */
 				continue;
 			}

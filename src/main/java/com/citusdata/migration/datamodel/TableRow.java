@@ -132,6 +132,8 @@ public class TableRow {
 		boolean skipSeparator = true;
 
 		for (String columnName : tableSchema.getColumnNames()) {
+			if (columnName.equals(TableSchema.KAFKA_SERIAL_COLUMN_NAME)) continue;
+
 			if (!skipSeparator) {
 				sb.append('\t');
 			}
