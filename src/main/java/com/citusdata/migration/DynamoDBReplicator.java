@@ -4,6 +4,7 @@
 package com.citusdata.migration;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,11 +35,13 @@ import com.citusdata.migration.datamodel.NonExistingTableException;
 import com.citusdata.migration.datamodel.TableEmitter;
 import com.citusdata.migration.datamodel.TableExistsException;
 
+import javax.management.*;
+
 /**
  * @author marco
  *
  */
-public class DynamoDBReplicator {
+public class DynamoDBReplicator implements DynamoDBReplicatorMBean {
 
 	private static final Log LOG = LogFactory.getLog(DynamoDBReplicator.class);
 
@@ -243,6 +246,8 @@ public class DynamoDBReplicator {
 				executor.shutdown();
 			}
 
+			registerMBean();
+
 		} catch (ParseException e) {
 			LOG.error(e.getMessage(), e);
 			formatter.printHelp("podyn", options);
@@ -279,4 +284,10 @@ public class DynamoDBReplicator {
 		}
 	}
 
+	static void registerMBean() throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+		MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+		ObjectName mbeanName = new ObjectName("com.citusdata.migration:type=DynamoDBReplicator");
+		DynamoDBReplicator mbean = new DynamoDBReplicator();
+		mbs.registerMBean(mbean, mbeanName);
+	}
 }
