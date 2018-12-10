@@ -1,0 +1,25 @@
+version: "3.3"
+
+services:
+  app:
+    image: inspectorio/podyn
+    volumes:
+    - ./:/app/src
+    command:
+    - /bin/bash
+    - -c
+    - 'trap : TERM INT; sleep infinity & wait'
+    ports:
+    - 9999:9999
+    environment:
+      AWS_REGION: us-west-2
+      # AWS_ACCESS_KEY_ID: ""
+      # AWS_SECRET_ACCESS_KEY: ""
+      POSTGRES_JDBC_URL: "jdbc:postgresql://db:5432/podyn?currentSchema=public&user=podyn&password=podyn"
+
+  db:
+    image: postgres:9.6
+    environment:
+      POSTGRES_USER: podyn
+      POSTGRES_PASSWORD: podyn
+      POSTGRES_DB: podyn
