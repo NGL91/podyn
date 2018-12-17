@@ -10,6 +10,8 @@ set +u
 JAVA_OPTS="$JAVA_OPTS $JAVA_OPTS_DOCKER"
 if [[ -n $DATA_SYNC ]]; then
     DATA_OPTS="--data"
+else
+    DATA_OPTS=""
 fi
 set -u
 
