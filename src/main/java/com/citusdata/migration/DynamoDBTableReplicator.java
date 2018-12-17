@@ -96,6 +96,7 @@ public class DynamoDBTableReplicator {
 	ConversionMode conversionMode;
 
 	TableSchema tableSchema;
+	boolean schemaExisted;
 
 	public DynamoDBTableReplicator(
 			AmazonDynamoDB dynamoDBClient,
@@ -114,6 +115,7 @@ public class DynamoDBTableReplicator {
 		this.useCitus = false;
 		this.useLowerCaseColumnNames = false;
 		this.tableSchema = emitter.fetchSchema(this.dynamoTableName);
+		this.schemaExisted = this.tableSchema != null;
 	}
 
 	public void setUseCitus(boolean useCitus) {
@@ -142,11 +144,11 @@ public class DynamoDBTableReplicator {
 
 	public void replicateSchema() throws TableExistsException {
 		if (tableSchema != null) {
-			throw new TableExistsException("relation %s already exists", dynamoTableName);
+			//throw new TableExistsException("relation %s already exists", dynamoTableName);
+		} else {
+			tableSchema = fetchSourceSchema();
+			emitter.createTable(tableSchema);
 		}
-
-		tableSchema = fetchSourceSchema();
-		emitter.createTable(tableSchema);
 	}
 
 	TableSchema fetchSourceSchema() {
