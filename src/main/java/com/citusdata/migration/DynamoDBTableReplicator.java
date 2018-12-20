@@ -456,8 +456,7 @@ public class DynamoDBTableReplicator {
 			Map<String,AttributeValue> dynamoItem = streamRecord.getNewImage();
 
 			if(dynamoItem == null) {
-				LOG.error(String.format("the stream for table %s does not have new images", dynamoTableName));
-				System.exit(1);
+				continue;
 			}
 
 			TableRow tableRow = rowFromDynamoRecord(dynamoItem, dynamoRecord.getEventName());
