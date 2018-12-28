@@ -60,10 +60,6 @@ public class DynamoDBReplicator implements DynamoDBReplicatorMBean {
 		postgresURLOption.setRequired(false);
 		options.addOption(postgresURLOption);
 
-		Option noSchemaOption = new Option("s", "schema", false, "Replicate the table schema");
-		noSchemaOption.setRequired(false);
-		options.addOption(noSchemaOption);
-
 		Option noDataOption = new Option("d", "data", false, "Replicate the current data");
 		noDataOption.setRequired(false);
 		options.addOption(noDataOption);
@@ -120,11 +116,10 @@ public class DynamoDBReplicator implements DynamoDBReplicatorMBean {
 			CommandLine cmd = parser.parse(options, args);
 
 			boolean wantHelp = cmd.hasOption("help");
-			boolean replicateSchema = cmd.hasOption("schema");
 			boolean replicateData = cmd.hasOption("data");
 			boolean replicateChanges = cmd.hasOption("changes");
 
-			if (wantHelp || (!replicateSchema && !replicateData && !replicateChanges)) {
+			if (wantHelp || (!replicateData && !replicateChanges)) {
 				formatter.printHelp("podyn", options);
 				return;
 			}
@@ -215,20 +210,14 @@ public class DynamoDBReplicator implements DynamoDBReplicatorMBean {
 				replicators.add(replicator);
 			}
 
-			if (replicateSchema) {
-				for(DynamoDBTableReplicator replicator : replicators) {
-					if (replicator.schemaExisted) continue;
-					LOG.info(String.format("Constructing table schema for table %s", replicator.dynamoTableName));
-
-					replicator.replicateSchema();
-				}
-			}
-
 			if (replicateData) {
 				List<Future<Long>> futureResults = new ArrayList<Future<Long>>();
 
 				for(DynamoDBTableReplicator replicator : replicators) {
 					if (replicator.schemaExisted) continue;
+					LOG.info(String.format("Constructing table schema for table %s", replicator.dynamoTableName));
+					replicator.replicateSchema();
+
 					LOG.info(String.format("Replicating data for table %s", replicator.dynamoTableName));
 					Future<Long> futureResult = replicator.startReplicatingData(maxScanRate);
 					futureResults.add(futureResult);

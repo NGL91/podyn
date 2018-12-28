@@ -24,13 +24,12 @@ Once you've built the JAR, you can run it as follows.
 ./podyn --help
 usage: podyn
  -c,--changes                    Continuously replicate changes
- -d,--data                       Replicate the current data
+ -d,--data                       Replicate the current data and table schema
  -h,--help                       Show help
  -lc,--lower-case-column-names   Use lower case column names
  -m,--conversion-mode <arg>      Conversion mode, either columns or jsonb (default: columns)
  -n,--num-connections <arg>      Database connection pool size (default 16)
  -r,--scan-rate <arg>            Maximum reads/sec during scan (default 25)
- -s,--schema                     Replicate the table schema
  -t,--table <arg>                DynamoDB table name(s) to replicate
  -u,--postgres-jdbc-url <arg>    PostgreSQL JDBC URL of the destination
  -x,--citus                      Create distributed tables using Citus
@@ -45,7 +44,7 @@ After [setting up your AWS credentials](http://docs.aws.amazon.com/sdk-for-java/
 ```
 export AWS_REGION=us-east-1
 
-./podyn --postgres-jdbc-url "jdbc:postgresql://host:5432/citus?sslmode=require&user=citus&password=pw" --schema --data --citus
+./podyn --postgres-jdbc-url "jdbc:postgresql://host:5432/citus?sslmode=require&user=citus&password=pw" --data --citus
 
 Constructing table schema for table clicks
 Moving data for table clicks
@@ -53,7 +52,7 @@ Adding new column to table clicks: ip text
 Adding new column to table clicks: object text
 ```
 
-When `--schema` is specified, tables will be created in PostgreSQL as described in the *Schema conversion rules* section. If `--citus` is specified the tables will be distributed by the DynamoDB partition key. When the `--data` argument is specified, all the data in the DynamoDB table is scanned in batches and `COPY` is used to load the batch into postgres.
+When `--data` is specified, tables will be created in PostgreSQL as described in the *Schema conversion rules* section. If `--citus` is specified the tables will be distributed by the DynamoDB partition key. When the `--data` argument is specified, all the data in the DynamoDB table is scanned in batches and `COPY` is used to load the batch into postgres.
 
 ## Stream changes from DynamoDB
 
