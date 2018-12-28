@@ -32,4 +32,5 @@ exec java $JMX_OPTS \
           --num-connections "${NUM_CONNECTIONS}" \
           --scan-rate "${SCAN_RATE}" \
           -sn "${SCHEMA_NAME}" \
-          com.citusdata.migration.DynamoDBReplicator "$@"
+          "$@" \
+          com.citusdata.migration.DynamoDBReplicator
