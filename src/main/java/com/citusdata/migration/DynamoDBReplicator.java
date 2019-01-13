@@ -3,27 +3,6 @@
  */
 package com.citusdata.migration;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
@@ -34,8 +13,28 @@ import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
 import com.citusdata.migration.datamodel.NonExistingTableException;
 import com.citusdata.migration.datamodel.TableEmitter;
 import com.citusdata.migration.datamodel.TableExistsException;
+import com.github.strengthened.prometheus.healthchecks.HealthChecksCollector;
+import io.prometheus.client.CollectorRegistry;
+import io.prometheus.client.exporter.MetricsServlet;
+import io.prometheus.client.hotspot.DefaultExports;
+import org.apache.commons.cli.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.management.*;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * @author marco
@@ -248,7 +247,8 @@ public class DynamoDBReplicator implements DynamoDBReplicatorMBean {
 				executor.shutdown();
 			}
 
-			registerMBean();
+			//registerMBean();
+			exportHealthCheck(postgresURL, dynamoDBClient);
 
 		} catch (ParseException e) {
 			LOG.error(e.getMessage(), e);
@@ -291,5 +291,22 @@ public class DynamoDBReplicator implements DynamoDBReplicatorMBean {
 		ObjectName mbeanName = new ObjectName("com.citusdata.migration:type=DynamoDBReplicator");
 		DynamoDBReplicator mbean = new DynamoDBReplicator();
 		mbs.registerMBean(mbean, mbeanName);
+	}
+
+	static void exportHealthCheck(String jdbcUrl, AmazonDynamoDB amazonDynamoDB) throws Exception {
+		HealthChecksCollector healthChecksCollector = HealthChecksCollector.Builder.of().setGaugeMetricName("ins_podyn_health_check").build();
+		healthChecksCollector.addHealthCheck("database", new AppHealthCheck(amazonDynamoDB, jdbcUrl));
+		CollectorRegistry.defaultRegistry.register(healthChecksCollector);
+
+		Server server = new Server(8080);
+		ServletContextHandler context = new ServletContextHandler();
+		context.setContextPath("/");
+		server.setHandler(context);
+
+		context.addServlet(new ServletHolder(new MetricsServlet()), "/metrics");
+		DefaultExports.initialize();
+
+		server.start();
+		server.join();
 	}
 }
