@@ -57,6 +57,8 @@ public class TableRow {
 				continue;
 			}
 
+			if (TableSchema.KAFKA_SERIAL_COLUMN_NAME.equals(columnName)) continue;
+
 			if (!skipSeparator) {
 				sb.append(", ");
 			}
@@ -81,6 +83,8 @@ public class TableRow {
 		boolean skipSeparator = true;
 
 		for (String columnName : tableSchema.getColumnNames()) {
+			if (TableSchema.KAFKA_SERIAL_COLUMN_NAME.equals(columnName)) continue;
+
 			if (!skipSeparator) {
 				sb.append(", ");
 			}
@@ -104,6 +108,8 @@ public class TableRow {
 		boolean skipSeparator = true;
 
 		for (TableColumn column : tableSchema.getColumns()) {
+			if (TableSchema.KAFKA_SERIAL_COLUMN_NAME.equals(column.name)) continue;
+
 			if (!skipSeparator) {
 				sb.append(", ");
 			}
