@@ -49,6 +49,14 @@
                     <include>**</include>
                   </includes>
                 </filter>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                  </excludes>
+                </filter>
               </filters>
             </configuration>
           </execution>
@@ -70,5 +78,14 @@
       <url>https://oss.sonatype.org/content/groups/staging</url>
     </pluginRepository>
   </pluginRepositories>
+  <properties>
+    <maven.complier.version>3.1</maven.complier.version>
+    <org.eclipse.jetty.version>8.1.7.v20120910</org.eclipse.jetty.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <mysql.version>5.1.47</mysql.version>
+    <com.github.strengthened.version>1.0.0</com.github.strengthened.version>
+    <io.prometheus.simpleclient.version>0.6.0</io.prometheus.simpleclient.version>
+  </properties>
 </project>
 

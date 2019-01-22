@@ -13,6 +13,12 @@ if [[ -n $DATA_SYNC ]]; then
 else
     DATA_OPTS=""
 fi
+
+if [[ -n $SCHEMA_CREATE ]]; then
+    SCHEMA_OPTS="--schema"
+else
+    SCHEMA_OPTS=""
+fi
 set -u
 
 TABLE=${TABLE:-Test_Table}
@@ -26,6 +32,7 @@ exec java $JMX_OPTS \
           $JAVA_OPTS \
           -jar /app/podyn.jar \
           $DATA_OPTS \
+          $SCHEMA_OPTS \
           --changes \
           --table "${TABLE}" \
           --postgres-jdbc-url "${POSTGRES_JDBC_URL}" \
