@@ -560,7 +560,11 @@ public class DynamoDBTableReplicator {
 				row.setValue(columnName, columnValue);
 			}
 
-			item.with(keyName, columnValue.datum);
+			if (columnValue != null) {
+				item.with(keyName, columnValue.datum);
+			} else {
+				item.with(keyName, null);
+			}
 		}
 
 		row.setValue("data", item.toJSON());
